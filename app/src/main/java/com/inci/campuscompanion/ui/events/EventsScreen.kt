@@ -10,6 +10,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.inci.campuscompanion.data.repository.CampusEvent
 @Composable
 fun EventsScreen(
@@ -64,6 +65,18 @@ fun EventsScreen(
             }
         }
     }
+    val refreshState by viewModel.refreshState.collectAsStateWithLifecycle()
+
+    Button(onClick = viewModel::onRefreshClicked) { Text("Refresh") }
+    Text(
+        when (refreshState) {
+            EventsViewModel.RefreshUi.Queued -> "Waiting for network…"
+            EventsViewModel.RefreshUi.Refreshing -> "Refreshing…"
+            EventsViewModel.RefreshUi.Current -> "Events are up to date"
+            EventsViewModel.RefreshUi.Failed -> "Refresh failed"
+            EventsViewModel.RefreshUi.Idle -> ""
+        }
+    )
 }
 
 @Composable
