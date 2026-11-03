@@ -1,0 +1,27 @@
+package com.inci.campuscompanion
+
+import com.inci.campuscompanion.data.repository.EventsRepository
+import android.app.Application
+import androidx.work.Configuration
+import com.inci.campuscompanion.data.network.CampusApi
+import com.inci.campuscompanion.data.network.EventsRemoteDataSource
+import com.inci.campuscompanion.work.RefreshEventsWorkerFactory
+import retrofit2.Retrofit
+
+class CampusCompanionApp : Application(), Configuration.Provider {
+
+    // the repository lives here so the Activity, ViewModels and the Worker all share one instance
+    val eventsRepository: EventsRepository by lazy {
+        val retrofit = Retrofit.Builder()
+            .baseUrl("https://YOUR_BASE_URL/")   // GUESS 1: copy from your existing Retrofit setup
+            .addConverterFactory(RefreshEventsWorkerFactory.create())   // GUESS 2: use whatever converter you already use
+            .build()
+        val api = retrofit.create(CampusApi::class.java)
+        EventsRepository(EventsRemoteDataSource(api))   // GUESS 3: match your real constructor
+    }
+
+    override val workManagerConfiguration: Configuration
+        get() = Configuration.Builder()
+            .setWorkerFactory(RefreshEventsWorkerFactory(eventsRepository))
+            .build()
+}

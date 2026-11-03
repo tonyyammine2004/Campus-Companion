@@ -22,4 +22,8 @@ class EventsRepository(
                 locationLabel = dto.location ?: "TBA"
             )
         }
+
+    fun refreshEvents() {
+        TODO("Not yet implemented")
+    }
 }
